@@ -1,0 +1,19 @@
+{
+  "name": "log-search-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server that searches log files for keywords and returns matching lines with context",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.10.2",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.5.0"
+  }
+}

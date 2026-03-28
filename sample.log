@@ -1,0 +1,91 @@
+2024-03-28 09:58:01 INFO  [app] Server starting up on port 8080
+2024-03-28 09:58:02 INFO  [db] Connecting to PostgreSQL at db.internal:5432
+2024-03-28 09:58:03 INFO  [db] Connection pool initialized (min=2 max=10)
+2024-03-28 09:58:04 INFO  [app] Loading configuration from /etc/app/config.yaml
+2024-03-28 09:58:05 INFO  [app] Server ready
+2024-03-28 09:58:10 INFO  [http] GET /health 200 4ms
+2024-03-28 09:58:15 INFO  [http] GET /health 200 3ms
+2024-03-28 09:59:01 INFO  [billing] Processing webhook from chargebee
+2024-03-28 09:59:02 DEBUG [billing] Webhook payload: { event_type: "subscription_created", customer_id: "cust_123" }
+2024-03-28 09:59:03 INFO  [billing] Subscription created for customer cust_123
+2024-03-28 09:59:04 INFO  [http] POST /webhooks/chargebee 200 312ms
+2024-03-28 10:00:00 INFO  [scheduler] Running hourly job: invoice-sync
+2024-03-28 10:00:01 INFO  [scheduler] invoice-sync completed in 540ms
+2024-03-28 10:00:30 INFO  [http] GET /health 200 3ms
+2024-03-28 10:01:00 INFO  [billing] Processing webhook from chargebee
+2024-03-28 10:01:01 DEBUG [billing] Webhook payload: { event_type: "payment_failed", customer_id: "cust_456" }
+2024-03-28 10:01:02 DEBUG [billing] Attempting to reach chargebee API
+2024-03-28 10:01:12 DEBUG [billing] No response yet, retrying... (attempt 1)
+2024-03-28 10:01:22 DEBUG [billing] No response yet, retrying... (attempt 2)
+2024-03-28 10:01:32 DEBUG [billing] No response yet, retrying... (attempt 3)
+2024-03-28 10:01:39 ERROR [billing] chargebee webhook timeout after 37s (customer: cust_456)
+2024-03-28 10:01:40 DEBUG [billing] Scheduling retry in 60s
+2024-03-28 10:01:41 INFO  [http] POST /webhooks/chargebee 500 37423ms
+2024-03-28 10:01:45 WARN  [alerts] Slow response alert triggered: /webhooks/chargebee 37423ms > threshold 5000ms
+2024-03-28 10:01:46 INFO  [http] GET /health 200 3ms
+2024-03-28 10:02:00 INFO  [http] GET /api/v1/users 200 45ms
+2024-03-28 10:02:01 INFO  [http] GET /api/v1/users/cust_789 200 22ms
+2024-03-28 10:02:10 ERROR [db] Query timeout: SELECT * FROM invoices WHERE customer_id = 'cust_789' (exceeded 5000ms)
+2024-03-28 10:02:10 WARN  [http] GET /api/v1/users/cust_789/invoices 503 5003ms
+2024-03-28 10:02:11 INFO  [db] Connection pool health: active=8 idle=2 waiting=3
+2024-03-28 10:02:12 WARN  [db] Connection pool pressure detected: 3 queries waiting
+2024-03-28 10:02:15 INFO  [http] GET /health 200 4ms
+2024-03-28 10:02:39 INFO  [billing] Retrying chargebee webhook for customer cust_456
+2024-03-28 10:02:40 DEBUG [billing] Connecting to chargebee API endpoint
+2024-03-28 10:02:41 ERROR [billing] chargebee webhook 503 Service Unavailable (customer: cust_456)
+2024-03-28 10:02:41 ERROR [billing] Giving up after 2 attempts for customer cust_456
+2024-03-28 10:02:42 WARN  [alerts] Payment webhook failure unresolved: customer cust_456 event payment_failed
+2024-03-28 10:02:43 INFO  [http] POST /webhooks/chargebee 200 103ms
+2024-03-28 10:03:00 INFO  [scheduler] Running 3-minute job: session-cleanup
+2024-03-28 10:03:01 DEBUG [scheduler] Cleaned up 14 expired sessions
+2024-03-28 10:03:02 INFO  [scheduler] session-cleanup completed in 1100ms
+2024-03-28 10:03:15 INFO  [http] GET /health 200 3ms
+2024-03-28 10:03:20 INFO  [http] POST /api/v1/orders 201 88ms
+2024-03-28 10:03:21 DEBUG [orders] Order created: order_001 for customer cust_111
+2024-03-28 10:03:22 INFO  [http] POST /api/v1/orders 201 91ms
+2024-03-28 10:03:23 DEBUG [orders] Order created: order_002 for customer cust_222
+2024-03-28 10:03:30 INFO  [http] GET /api/v1/orders/order_001 200 18ms
+2024-03-28 10:03:45 ERROR [db] Deadlock detected: transaction_id=txn_889 vs txn_901
+2024-03-28 10:03:45 ERROR [db] Rolling back transaction txn_889
+2024-03-28 10:03:46 WARN  [http] POST /api/v1/orders 409 55ms
+2024-03-28 10:03:47 INFO  [db] Deadlock resolved, txn_901 committed
+2024-03-28 10:04:00 INFO  [http] GET /health 200 3ms
+2024-03-28 10:04:01 INFO  [http] GET /api/v1/products 200 67ms
+2024-03-28 10:04:05 INFO  [cache] Cache hit rate: 84.2% (last 5 min)
+2024-03-28 10:04:10 INFO  [http] GET /api/v1/products/sku_999 200 12ms
+2024-03-28 10:04:15 WARN  [cache] Cache eviction pressure: memory usage at 91%
+2024-03-28 10:04:20 INFO  [cache] Evicted 2048 entries (LRU)
+2024-03-28 10:04:21 INFO  [cache] Memory usage after eviction: 73%
+2024-03-28 10:04:30 INFO  [http] GET /health 200 4ms
+2024-03-28 10:05:00 ERROR [app] Unhandled exception in worker thread
+2024-03-28 10:05:00 ERROR [app] TypeError: Cannot read properties of undefined (reading 'customerId')
+2024-03-28 10:05:00 ERROR [app]     at processPaymentEvent (billing/handler.js:142:18)
+2024-03-28 10:05:00 ERROR [app]     at Worker.onMessage (workers/billing-worker.js:38:5)
+2024-03-28 10:05:01 WARN  [app] Worker restarted after crash
+2024-03-28 10:05:02 INFO  [app] Worker online and ready
+2024-03-28 10:05:15 INFO  [http] GET /health 200 3ms
+2024-03-28 10:05:30 INFO  [http] GET /api/v1/users 200 41ms
+2024-03-28 10:05:31 INFO  [http] POST /api/v1/users 201 134ms
+2024-03-28 10:05:45 INFO  [http] GET /health 200 3ms
+2024-03-28 10:06:00 INFO  [scheduler] Running hourly job: metrics-flush
+2024-03-28 10:06:01 INFO  [scheduler] metrics-flush completed in 220ms
+2024-03-28 10:06:10 DEBUG [db] Slow query detected (2341ms): SELECT COUNT(*) FROM events WHERE created_at > NOW() - INTERVAL '1 hour'
+2024-03-28 10:06:11 WARN  [db] Consider adding index on events.created_at
+2024-03-28 10:06:15 INFO  [http] GET /health 200 3ms
+2024-03-28 10:06:30 INFO  [http] DELETE /api/v1/sessions/sess_xyz 204 9ms
+2024-03-28 10:06:45 INFO  [http] GET /health 200 3ms
+2024-03-28 10:07:00 INFO  [billing] Processing webhook from chargebee
+2024-03-28 10:07:01 DEBUG [billing] Webhook payload: { event_type: "subscription_cancelled", customer_id: "cust_333" }
+2024-03-28 10:07:02 INFO  [billing] Subscription cancelled for customer cust_333
+2024-03-28 10:07:03 INFO  [http] POST /webhooks/chargebee 200 89ms
+2024-03-28 10:07:15 INFO  [http] GET /health 200 3ms
+2024-03-28 10:07:20 ERROR [db] Connection lost to PostgreSQL db.internal:5432
+2024-03-28 10:07:20 ERROR [db] Attempting reconnect (attempt 1)
+2024-03-28 10:07:21 ERROR [db] Attempting reconnect (attempt 2)
+2024-03-28 10:07:23 INFO  [db] Reconnected to PostgreSQL
+2024-03-28 10:07:24 INFO  [db] Connection pool restored
+2024-03-28 10:07:25 WARN  [alerts] Database connection blip detected at 10:07:20
+2024-03-28 10:07:30 INFO  [http] GET /health 200 3ms
+2024-03-28 10:07:45 INFO  [http] GET /api/v1/users/cust_456 200 19ms
+2024-03-28 10:07:50 INFO  [http] GET /api/v1/users/cust_456/invoices 200 44ms
+2024-03-28 10:08:00 INFO  [http] GET /health 200 3ms
